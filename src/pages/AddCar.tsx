@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Car, Plus, Trash2, Upload, Eye, Edit3 } from 'lucide-react';
+import { Car, Plus, Trash2, Upload, Eye, Edit3, Image, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 
@@ -43,7 +43,7 @@ interface Car {
 }
 
 export const AddCar: React.FC = () => {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -63,23 +63,33 @@ export const AddCar: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [userCars, setUserCars] = useState<Car[]>([]);
   const [editingCar, setEditingCar] = useState<Car | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate('/auth');
       return;
     }
+    if (!isAdmin) {
+      toast({
+        title: "Access Denied",
+        description: "Only administrators can add vehicles.",
+        variant: "destructive",
+      });
+      navigate('/vehicles');
+      return;
+    }
     fetchUserCars();
-  }, [user, navigate]);
+  }, [user, isAdmin, navigate]);
 
   const fetchUserCars = async () => {
-    if (!user) return;
+    if (!user || !isAdmin) return;
     
     try {
       const { data, error } = await supabase
         .from('cars')
         .select('*')
-        .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -87,7 +97,7 @@ export const AddCar: React.FC = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to fetch your cars. Please try again.",
+        description: "Failed to fetch cars. Please try again.",
         variant: "destructive",
       });
     }
@@ -95,6 +105,74 @@ export const AddCar: React.FC = () => {
 
   const handleInputChange = (field: keyof CarFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleFileUpload = async (files: FileList) => {
+    if (!files.length) return;
+    
+    const newImages = Array.from(files).filter(file => {
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid File",
+          description: "Please select only image files.",
+          variant: "destructive",
+        });
+        return false;
+      }
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File Too Large",
+          description: "Please select images smaller than 5MB.",
+          variant: "destructive",
+        });
+        return false;
+      }
+      return true;
+    });
+
+    setUploadedImages(prev => [...prev, ...newImages].slice(0, 5)); // Max 5 images
+  };
+
+  const removeUploadedImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const uploadImagesToSupabase = async (): Promise<string[]> => {
+    if (!uploadedImages.length) return [];
+    
+    setUploading(true);
+    const uploadedUrls: string[] = [];
+    
+    try {
+      for (const file of uploadedImages) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${user?.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('car-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('car-images')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(publicUrl);
+      }
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Upload Error",
+        description: "Failed to upload some images. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+    
+    return uploadedUrls;
   };
 
   const validateForm = (): boolean => {
@@ -126,10 +204,10 @@ export const AddCar: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
+    if (!user || !isAdmin) {
       toast({
         title: "Error",
-        description: "You must be logged in to add a car",
+        description: "Only administrators can add vehicles",
         variant: "destructive",
       });
       return;
@@ -140,6 +218,9 @@ export const AddCar: React.FC = () => {
     setLoading(true);
 
     try {
+      // Upload images first
+      const imageUrls = await uploadImagesToSupabase();
+      const primaryImageUrl = imageUrls.length > 0 ? imageUrls[0] : formData.image_url;
       const carData: TablesInsert<'cars'> = {
         id: 0, // This will be auto-generated by the database
         title: formData.title,
@@ -151,7 +232,7 @@ export const AddCar: React.FC = () => {
         condition: formData.condition,
         location: formData.location || null,
         description: formData.description || null,
-        image_url: formData.image_url || null,
+        image_url: primaryImageUrl || null,
         owner_id: user.id,
         is_available: true,
       };
@@ -163,8 +244,7 @@ export const AddCar: React.FC = () => {
         result = await supabase
           .from('cars')
           .update(updateData)
-          .eq('id', editingCar.id)
-          .eq('owner_id', user.id);
+          .eq('id', editingCar.id);
       } else {
         result = await supabase
           .from('cars')
@@ -192,6 +272,7 @@ export const AddCar: React.FC = () => {
         image_url: '',
       });
       setEditingCar(null);
+      setUploadedImages([]);
       
       // Refresh the car list
       await fetchUserCars();
@@ -225,7 +306,7 @@ export const AddCar: React.FC = () => {
   };
 
   const handleDelete = async (carId: number) => {
-    if (!user) return;
+    if (!user || !isAdmin) return;
     
     if (!confirm('Are you sure you want to delete this car? This action cannot be undone.')) {
       return;
@@ -235,8 +316,7 @@ export const AddCar: React.FC = () => {
       const { error } = await supabase
         .from('cars')
         .delete()
-        .eq('id', carId)
-        .eq('owner_id', user.id);
+        .eq('id', carId);
 
       if (error) throw error;
 
@@ -257,6 +337,7 @@ export const AddCar: React.FC = () => {
 
   const cancelEdit = () => {
     setEditingCar(null);
+    setUploadedImages([]);
     setFormData({
       title: '',
       make: '',
@@ -269,6 +350,15 @@ export const AddCar: React.FC = () => {
       description: '',
       image_url: '',
     });
+  };
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-KE', {
+      style: 'currency',
+      currency: 'KES',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price);
   };
 
   if (!user) {
@@ -383,21 +473,21 @@ export const AddCar: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="price" className="text-foreground font-medium">
-                        Price (USD)
-                      </Label>
-                      <Input
-                        id="price"
-                        type="number"
-                        placeholder="75000"
-                        value={formData.price}
-                        onChange={(e) => handleInputChange('price', e.target.value)}
-                        className="luxury-input"
-                        min="0"
-                        step="0.01"
-                      />
-                    </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="price" className="text-foreground font-medium">
+                         Price (KSH)
+                       </Label>
+                       <Input
+                         id="price"
+                         type="number"
+                         placeholder="750000"
+                         value={formData.price}
+                         onChange={(e) => handleInputChange('price', e.target.value)}
+                         className="luxury-input"
+                         min="0"
+                         step="1"
+                       />
+                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="mileage" className="text-foreground font-medium">
@@ -428,19 +518,75 @@ export const AddCar: React.FC = () => {
                     />
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="image_url" className="text-foreground font-medium">
-                      Image URL
-                    </Label>
-                    <Input
-                      id="image_url"
-                      type="url"
-                      placeholder="https://example.com/car-image.jpg"
-                      value={formData.image_url}
-                      onChange={(e) => handleInputChange('image_url', e.target.value)}
-                      className="luxury-input"
-                    />
-                  </div>
+                   <div className="space-y-2">
+                     <Label className="text-foreground font-medium">
+                       Images
+                     </Label>
+                     
+                     {/* File Upload */}
+                     <div className="space-y-4">
+                       <div className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 transition-colors">
+                         <input
+                           type="file"
+                           id="images"
+                           multiple
+                           accept="image/*"
+                           onChange={(e) => e.target.files && handleFileUpload(e.target.files)}
+                           className="hidden"
+                         />
+                         <label htmlFor="images" className="cursor-pointer">
+                           <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                           <p className="text-sm text-muted-foreground">
+                             Click to upload images or drag and drop
+                           </p>
+                           <p className="text-xs text-muted-foreground mt-1">
+                             PNG, JPG, JPEG up to 5MB each (max 5 images)
+                           </p>
+                         </label>
+                       </div>
+
+                       {/* Image Preview */}
+                       {uploadedImages.length > 0 && (
+                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                           {uploadedImages.map((file, index) => (
+                             <div key={index} className="relative group">
+                               <img
+                                 src={URL.createObjectURL(file)}
+                                 alt={`Preview ${index + 1}`}
+                                 className="w-full h-24 object-cover rounded-lg border border-border"
+                               />
+                               <button
+                                 type="button"
+                                 onClick={() => removeUploadedImage(index)}
+                                 className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                               >
+                                 <X className="h-3 w-3" />
+                               </button>
+                             </div>
+                           ))}
+                         </div>
+                       )}
+
+                       {/* Or URL Input */}
+                       <div className="relative">
+                         <div className="absolute inset-0 flex items-center">
+                           <div className="w-full border-t border-border" />
+                         </div>
+                         <div className="relative flex justify-center text-xs uppercase">
+                           <span className="bg-background px-2 text-muted-foreground">Or use URL</span>
+                         </div>
+                       </div>
+                       
+                       <Input
+                         id="image_url"
+                         type="url"
+                         placeholder="https://example.com/car-image.jpg"
+                         value={formData.image_url}
+                         onChange={(e) => handleInputChange('image_url', e.target.value)}
+                         className="luxury-input"
+                       />
+                     </div>
+                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="description" className="text-foreground font-medium">
@@ -456,24 +602,24 @@ export const AddCar: React.FC = () => {
                     />
                   </div>
 
-                  <div className="flex space-x-4">
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="premium-button hover:shadow-glow flex-1"
-                    >
-                      {loading ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>{editingCar ? 'Updating...' : 'Adding...'}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          {editingCar ? <Edit3 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-                          <span>{editingCar ? 'Update Vehicle' : 'Add Vehicle'}</span>
-                        </div>
-                      )}
-                    </Button>
+                   <div className="flex space-x-4">
+                     <Button
+                       type="submit"
+                       disabled={loading || uploading}
+                       className="premium-button hover:shadow-glow flex-1"
+                     >
+                       {loading || uploading ? (
+                         <div className="flex items-center space-x-2">
+                           <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                           <span>{uploading ? 'Uploading...' : editingCar ? 'Updating...' : 'Adding...'}</span>
+                         </div>
+                       ) : (
+                         <div className="flex items-center space-x-2">
+                           {editingCar ? <Edit3 className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                           <span>{editingCar ? 'Update Vehicle' : 'Add Vehicle'}</span>
+                         </div>
+                       )}
+                     </Button>
 
                     {editingCar && (
                       <Button
