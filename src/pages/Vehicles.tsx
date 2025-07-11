@@ -72,8 +72,8 @@ export const Vehicles: React.FC = () => {
         car.make?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         car.model?.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesMake = !makeFilter || car.make === makeFilter;
-      const matchesCondition = !conditionFilter || car.condition === conditionFilter;
+      const matchesMake = !makeFilter || makeFilter === 'all' || car.make === makeFilter;
+      const matchesCondition = !conditionFilter || conditionFilter === 'all' || car.condition === conditionFilter;
 
       return matchesSearch && matchesMake && matchesCondition;
     });
@@ -177,7 +177,7 @@ export const Vehicles: React.FC = () => {
                 <SelectValue placeholder="All Makes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Makes</SelectItem>
+                <SelectItem value="all">All Makes</SelectItem>
                 {uniqueMakes.map((make) => (
                   <SelectItem key={make} value={make}>{make}</SelectItem>
                 ))}
@@ -190,7 +190,7 @@ export const Vehicles: React.FC = () => {
                 <SelectValue placeholder="All Conditions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Conditions</SelectItem>
+                <SelectItem value="all">All Conditions</SelectItem>
                 {uniqueConditions.map((condition) => (
                   <SelectItem key={condition} value={condition}>{condition}</SelectItem>
                 ))}
@@ -215,8 +215,8 @@ export const Vehicles: React.FC = () => {
             <Button
               onClick={() => {
                 setSearchTerm('');
-                setMakeFilter('');
-                setConditionFilter('');
+                setMakeFilter('all');
+                setConditionFilter('all');
                 setSortBy('price-asc');
               }}
               variant="outline"
