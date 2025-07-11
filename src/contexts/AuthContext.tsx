@@ -31,6 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const checkUserRole = async (userId: string) => {
     try {
+      // Check if user has admin role in user_roles table
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -38,7 +39,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('role', 'admin')
         .single();
       
-      setIsAdmin(!error && data?.role === 'admin');
+      // Also check if user email matches admin email directly
+      const { data: userData } = await supabase.auth.getUser();
+      const isAdminEmail = userData.user?.email === 'muturimichael66@gmail.com';
+      
+      setIsAdmin((!error && data?.role === 'admin') || isAdminEmail);
     } catch (error) {
       setIsAdmin(false);
     }

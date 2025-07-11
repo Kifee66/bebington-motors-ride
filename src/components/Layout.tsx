@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/ui/logo';
-import { Car, Plus, LogOut, User } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Car, Plus, LogOut, User, Menu, X } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -13,6 +14,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -35,7 +37,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Logo size="md" />
             </div>
 
-            {/* Navigation */}
+            {/* Desktop Navigation */}
             {user && (
               <nav className="hidden md:flex space-x-8">
                 {navigation.map((item) => {
@@ -58,13 +60,90 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               </nav>
             )}
 
-            {/* User menu */}
-            <div className="flex items-center space-x-4">
+            {/* Mobile Navigation */}
+            {user && (
+              <div className="md:hidden">
+                <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm" className="p-2">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-80">
+                    <div className="flex items-center justify-between mb-6">
+                      <Logo size="sm" />
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="p-2"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    
+                    <nav className="space-y-4">
+                      {navigation.map((item) => {
+                        const isActive = location.pathname === item.href;
+                        return (
+                          <button
+                            key={item.name}
+                            onClick={() => {
+                              navigate(item.href);
+                              setMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md transition-smooth text-left ${
+                              isActive
+                                ? 'bg-primary text-primary-foreground shadow-glow'
+                                : 'text-foreground hover:bg-muted hover:text-primary'
+                            }`}
+                          >
+                            <item.icon className="h-5 w-5" />
+                            <span className="font-medium">{item.name}</span>
+                          </button>
+                        );
+                      })}
+                    </nav>
+
+                    <div className="mt-8 pt-8 border-t border-border">
+                      <div className="flex items-center space-x-3 px-4 py-2 mb-4">
+                        <User className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{user.email}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {isAdmin ? 'Administrator' : 'User'}
+                          </p>
+                        </div>
+                      </div>
+                      <Button
+                        onClick={() => {
+                          handleSignOut();
+                          setMobileMenuOpen(false);
+                        }}
+                        variant="outline"
+                        className="w-full border-border hover:bg-destructive hover:text-destructive-foreground"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
+
+            {/* Desktop User menu */}
+            <div className="hidden md:flex items-center space-x-4">
               {user ? (
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2 text-sm">
                     <User className="h-4 w-4 text-primary" />
                     <span className="text-foreground">{user.email}</span>
+                    {isAdmin && (
+                      <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded">
+                        Admin
+                      </span>
+                    )}
                   </div>
                   <Button
                     onClick={handleSignOut}
