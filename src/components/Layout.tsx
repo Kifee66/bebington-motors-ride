@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 export const Layout: React.FC<LayoutProps> = ({ children }) => {
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -21,7 +21,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const navigation = [
     { name: 'Vehicles', href: '/vehicles', icon: Car },
-    { name: 'Add Car', href: '/add-car', icon: Plus },
+    ...(isAdmin ? [{ name: 'Add Car', href: '/add-car', icon: Plus }] : []),
   ];
 
   return (

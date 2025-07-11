@@ -43,7 +43,7 @@ interface Car {
 }
 
 export const AddCar: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, redirectIfNotAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   
@@ -77,11 +77,11 @@ export const AddCar: React.FC = () => {
         description: "Only administrators can add vehicles.",
         variant: "destructive",
       });
-      navigate('/vehicles');
+      redirectIfNotAdmin();
       return;
     }
     fetchUserCars();
-  }, [user, isAdmin, navigate]);
+  }, [user, isAdmin, navigate, redirectIfNotAdmin]);
 
   const fetchUserCars = async () => {
     if (!user || !isAdmin) return;

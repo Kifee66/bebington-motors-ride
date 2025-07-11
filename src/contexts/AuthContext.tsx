@@ -10,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   loading: boolean;
+  redirectIfNotAdmin: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +106,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await supabase.auth.signOut();
   };
 
+  // Redirect non-admin users from restricted pages
+  const redirectIfNotAdmin = () => {
+    if (!isAdmin && user) {
+      window.location.href = '/';
+    }
+  };
+
   const value = {
     user,
     session,
@@ -113,6 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     loading,
+    redirectIfNotAdmin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

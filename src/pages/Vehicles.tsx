@@ -5,8 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search, Filter, Car, Calendar, Gauge, MapPin, Eye } from 'lucide-react';
+import { Search, Filter, Car, Calendar, Gauge, MapPin, Eye, Phone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ContactModal } from '@/components/ContactModal';
 
 interface Car {
   id: number;
@@ -31,6 +32,8 @@ export const Vehicles: React.FC = () => {
   const [makeFilter, setMakeFilter] = useState('');
   const [conditionFilter, setConditionFilter] = useState('');
   const [sortBy, setSortBy] = useState('price-asc');
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<Car | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -107,6 +110,11 @@ export const Vehicles: React.FC = () => {
 
   const formatMileage = (mileage: number) => {
     return new Intl.NumberFormat('en-US').format(mileage);
+  };
+
+  const handleContactClick = (car: Car) => {
+    setSelectedCar(car);
+    setContactModalOpen(true);
   };
 
   const uniqueMakes = [...new Set(cars.map(car => car.make).filter(Boolean))];
@@ -299,16 +307,35 @@ export const Vehicles: React.FC = () => {
                     </p>
                   )}
 
-                  {/* Action Button */}
-                  <Button className="w-full premium-button hover:shadow-glow">
-                    <Eye className="h-4 w-4 mr-2" />
-                    View Details
-                  </Button>
+                  {/* Action Buttons */}
+                  <div className="space-y-2">
+                    <Button className="w-full premium-button hover:shadow-glow">
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </Button>
+                    <Button 
+                      onClick={() => handleContactClick(car)}
+                      variant="outline" 
+                      className="w-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                    >
+                      <Phone className="h-4 w-4 mr-2" />
+                      Contact Seller
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
+      )}
+
+      {/* Contact Modal */}
+      {selectedCar && (
+        <ContactModal
+          isOpen={contactModalOpen}
+          onClose={() => setContactModalOpen(false)}
+          carTitle={selectedCar.title || `${selectedCar.make} ${selectedCar.model}`}
+        />
       )}
     </div>
   );
