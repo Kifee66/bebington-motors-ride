@@ -98,26 +98,15 @@ export const Home: React.FC = () => {
                   )}
                 </>
               ) : (
-                <>
-                  <Button
-                    onClick={() => navigate('/auth')}
-                    className="premium-button hover:shadow-glow text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Car className="h-5 w-5 mr-2" />
-                    Get Started
-                    <ArrowRight className="h-5 w-5 ml-2" />
-                  </Button>
-                  <Button
-                    onClick={() => navigate('/vehicles')}
-                    variant="outline"
-                    className="border-border hover:bg-muted text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Eye className="h-5 w-5 mr-2" />
-                    View Showcase
-                  </Button>
-                </>
+                <Button
+                  onClick={() => navigate('/auth')}
+                  className="premium-button hover:shadow-glow text-lg px-8 py-4"
+                  size="lg"
+                >
+                  <Car className="h-5 w-5 mr-2" />
+                  Get Started
+                  <ArrowRight className="h-5 w-5 ml-2" />
+                </Button>
               )}
             </div>
 
@@ -217,25 +206,14 @@ export const Home: React.FC = () => {
                   )}
                 </>
               ) : (
-                <>
-                  <Button
-                    onClick={() => navigate('/auth')}
-                    className="premium-button hover:shadow-glow text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Car className="h-5 w-5 mr-2" />
-                    Join Today
-                  </Button>
-                  <Button
-                    onClick={() => navigate('/vehicles')}
-                    variant="outline" 
-                    className="border-accent/50 text-accent hover:bg-accent hover:text-accent-foreground text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Eye className="h-5 w-5 mr-2" />
-                    Browse Collection
-                  </Button>
-                </>
+                <Button
+                  onClick={() => navigate('/auth')}
+                  className="premium-button hover:shadow-glow text-lg px-8 py-4"
+                  size="lg"
+                >
+                  <Car className="h-5 w-5 mr-2" />
+                  Join Today
+                </Button>
               )}
             </div>
           </div>
