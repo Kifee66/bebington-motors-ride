@@ -14,13 +14,23 @@ export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md' }) => {
     xl: 'h-24'
   };
 
+  const textSizeClasses = {
+    sm: 'text-sm',
+    md: 'text-lg',
+    lg: 'text-xl',
+    xl: 'text-2xl'
+  };
+
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
+    <div className={`flex flex-col items-center ${className}`}>
       <img 
         src={logoImage} 
         alt="Bebington Motors" 
         className={`${sizeClasses[size]} w-auto`}
       />
+      <h2 className={`${textSizeClasses[size]} font-bold text-primary mt-2`}>
+        Bebington Motors
+      </h2>
     </div>
   );
 };

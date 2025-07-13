@@ -329,6 +329,43 @@ export const Vehicles: React.FC = () => {
         </div>
       )}
 
+      {/* Contact Information Section */}
+      <Card className="mt-12 bg-gradient-to-r from-primary/10 to-accent/10 border-primary/20">
+        <CardContent className="p-8 text-center">
+          <h2 className="text-2xl font-bold text-primary mb-4">Ready to Drive Your Dream Car?</h2>
+          <p className="text-lg text-foreground mb-6">
+            For more enquiries or to arrange a purchase, we're here to help
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+            <div className="flex items-center justify-center space-x-3 p-4 bg-background/60 rounded-lg border border-border/50">
+              <Phone className="h-5 w-5 text-primary" />
+              <div>
+                <p className="font-semibold text-foreground">Call Us</p>
+                <a href="tel:+254704400418" className="text-primary hover:underline text-lg font-medium">
+                  0704-400-418
+                </a>
+              </div>
+            </div>
+            <div className="flex items-center justify-center space-x-3 p-4 bg-background/60 rounded-lg border border-border/50">
+              <div className="h-5 w-5 text-primary">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full">
+                  <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-foreground">Email Us</p>
+                <a href="mailto:kevinbebington9@gmail.com" className="text-primary hover:underline text-lg font-medium">
+                  kevinbebington9@gmail.com
+                </a>
+              </div>
+            </div>
+          </div>
+          <p className="text-muted-foreground mt-4 text-sm">
+            Our team is ready to assist you with any questions about our premium vehicle collection
+          </p>
+        </CardContent>
+      </Card>
+
       {/* Contact Modal */}
       {selectedCar && (
         <ContactModal
