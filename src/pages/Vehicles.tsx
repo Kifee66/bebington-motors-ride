@@ -49,12 +49,13 @@ export const Vehicles: React.FC = () => {
       const { data, error } = await supabase
         .from('cars')
         .select('*')
-        .eq('is_available', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+      console.log('Fetched cars:', data); // Debug log
       setCars(data || []);
     } catch (error) {
+      console.error('Error fetching cars:', error); // Debug log
       toast({
         title: "Error",
         description: "Failed to fetch vehicles. Please try again.",

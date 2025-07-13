@@ -4,9 +4,10 @@ import logoImage from '@/assets/bebington-logo.png';
 interface LogoProps {
   className?: string;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  showText?: boolean;
 }
 
-export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md' }) => {
+export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md', showText = false }) => {
   const sizeClasses = {
     sm: 'h-8',
     md: 'h-12',
@@ -28,9 +29,11 @@ export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md' }) => {
         alt="Bebington Motors" 
         className={`${sizeClasses[size]} w-auto`}
       />
-      <h2 className={`${textSizeClasses[size]} font-bold text-primary mt-2`}>
-        Bebington Motors
-      </h2>
+      {showText && (
+        <h2 className={`${textSizeClasses[size]} font-bold text-primary mt-2 uppercase tracking-wide`}>
+          BEBINGTON MOTORS
+        </h2>
+      )}
     </div>
   );
 };

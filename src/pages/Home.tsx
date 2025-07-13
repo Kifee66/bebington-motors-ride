@@ -55,7 +55,7 @@ export const Home: React.FC = () => {
           <div className="max-w-4xl mx-auto animate-slide-up">
             {/* Logo */}
             <div className="flex justify-center mb-8">
-              <Logo size="xl" className="animate-float" />
+              <Logo size="xl" className="animate-float" showText={true} />
             </div>
 
             {/* Hero text */}
@@ -85,15 +85,17 @@ export const Home: React.FC = () => {
                     Browse Vehicles
                     <ArrowRight className="h-5 w-5 ml-2" />
                   </Button>
-                  <Button
-                    onClick={() => navigate('/add-car')}
-                    variant="outline"
-                    className="accent-button hover:shadow-accent text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    List Your Car
-                  </Button>
+                  {user.email === 'muturimichael66@gmail.com' && (
+                    <Button
+                      onClick={() => navigate('/add-car')}
+                      variant="outline"
+                      className="accent-button hover:shadow-accent text-lg px-8 py-4"
+                      size="lg"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      List Your Car
+                    </Button>
+                  )}
                 </>
               ) : (
                 <>
@@ -203,14 +205,16 @@ export const Home: React.FC = () => {
                     <Eye className="h-5 w-5 mr-2" />
                     Explore Vehicles
                   </Button>
-                  <Button
-                    onClick={() => navigate('/add-car')}
-                    className="accent-button hover:shadow-accent text-lg px-8 py-4"
-                    size="lg"
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Sell Your Car
-                  </Button>
+                  {user.email === 'muturimichael66@gmail.com' && (
+                    <Button
+                      onClick={() => navigate('/add-car')}
+                      className="accent-button hover:shadow-accent text-lg px-8 py-4"
+                      size="lg"
+                    >
+                      <Plus className="h-5 w-5 mr-2" />
+                      Sell Your Car
+                    </Button>
+                  )}
                 </>
               ) : (
                 <>
