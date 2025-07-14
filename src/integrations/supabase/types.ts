@@ -16,124 +16,151 @@ export type Database = {
     Tables: {
       car_images: {
         Row: {
-          car_id: number | null
+          car_id: number
           id: number
-          image_decription: string | null
-          image_url: string | null
-          uploaded_at: string
+          image_description: string | null
+          image_url: string
+          uploaded_at: string | null
         }
         Insert: {
-          car_id?: number | null
-          id: number
-          image_decription?: string | null
-          image_url?: string | null
-          uploaded_at?: string
+          car_id: number
+          id?: number
+          image_description?: string | null
+          image_url: string
+          uploaded_at?: string | null
         }
         Update: {
-          car_id?: number | null
+          car_id?: number
           id?: number
-          image_decription?: string | null
-          image_url?: string | null
-          uploaded_at?: string
+          image_description?: string | null
+          image_url?: string
+          uploaded_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "car_images_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cars: {
         Row: {
-          condition: string | null
+          condition: string
           created_at: string | null
           description: string | null
           id: number
           image_url: string | null
           is_available: boolean | null
           location: string | null
-          make: string | null
+          make: string
           mileage: number | null
-          model: string | null
+          model: string
           owner_id: string | null
-          price: number | null
-          title: string | null
-          year: number | null
+          price: number
+          title: string
+          updated_at: string | null
+          year: number
         }
         Insert: {
-          condition?: string | null
-          created_at?: string | null
-          description?: string | null
-          id: number
-          image_url?: string | null
-          is_available?: boolean | null
-          location?: string | null
-          make?: string | null
-          mileage?: number | null
-          model?: string | null
-          owner_id?: string | null
-          price?: number | null
-          title?: string | null
-          year?: number | null
-        }
-        Update: {
-          condition?: string | null
+          condition: string
           created_at?: string | null
           description?: string | null
           id?: number
           image_url?: string | null
           is_available?: boolean | null
           location?: string | null
-          make?: string | null
+          make: string
           mileage?: number | null
-          model?: string | null
+          model: string
           owner_id?: string | null
-          price?: number | null
-          title?: string | null
-          year?: number | null
+          price: number
+          title: string
+          updated_at?: string | null
+          year: number
         }
-        Relationships: []
+        Update: {
+          condition?: string
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          image_url?: string | null
+          is_available?: boolean | null
+          location?: string | null
+          make?: string
+          mileage?: number | null
+          model?: string
+          owner_id?: string | null
+          price?: number
+          title?: string
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cars_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
+          created_at: string | null
           id: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
+          created_at?: string | null
           id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          role?: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
+          created_at?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users: {
         Row: {
           created_at: string | null
-          email: string | null
+          email: string
           full_name: string | null
           id: string
-          password: string | null
           phone: string | null
-          role: string | null
+          updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          email?: string | null
+          email: string
           full_name?: string | null
           id: string
-          password?: string | null
           phone?: string | null
-          role?: string | null
+          updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          email?: string | null
+          email?: string
           full_name?: string | null
           id?: string
-          password?: string | null
           phone?: string | null
-          role?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
