@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cars: {
+        Row: {
+          condition: string
+          created_at: string | null
+          description: string | null
+          id: number
+          image_url: string | null
+          is_available: boolean | null
+          location: string | null
+          make: string
+          mileage: number | null
+          model: string
+          owner_id: string | null
+          price: number
+          title: string
+          updated_at: string | null
+          year: number
+        }
+        Insert: {
+          condition: string
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          image_url?: string | null
+          is_available?: boolean | null
+          location?: string | null
+          make: string
+          mileage?: number | null
+          model: string
+          owner_id?: string | null
+          price: number
+          title: string
+          updated_at?: string | null
+          year: number
+        }
+        Update: {
+          condition?: string
+          created_at?: string | null
+          description?: string | null
+          id?: number
+          image_url?: string | null
+          is_available?: boolean | null
+          location?: string | null
+          make?: string
+          mileage?: number | null
+          model?: string
+          owner_id?: string | null
+          price?: number
+          title?: string
+          updated_at?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -22,8 +123,8 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
         }
         Returns: boolean
       }
