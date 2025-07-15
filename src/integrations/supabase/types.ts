@@ -19,6 +19,7 @@ export type Database = {
           condition: string
           created_at: string | null
           description: string | null
+          engine_cc: number | null
           id: number
           image_url: string | null
           is_available: boolean | null
@@ -29,6 +30,7 @@ export type Database = {
           owner_id: string | null
           price: number
           title: string
+          transmission: string | null
           updated_at: string | null
           year: number
         }
@@ -36,6 +38,7 @@ export type Database = {
           condition: string
           created_at?: string | null
           description?: string | null
+          engine_cc?: number | null
           id?: number
           image_url?: string | null
           is_available?: boolean | null
@@ -46,6 +49,7 @@ export type Database = {
           owner_id?: string | null
           price: number
           title: string
+          transmission?: string | null
           updated_at?: string | null
           year: number
         }
@@ -53,6 +57,7 @@ export type Database = {
           condition?: string
           created_at?: string | null
           description?: string | null
+          engine_cc?: number | null
           id?: number
           image_url?: string | null
           is_available?: boolean | null
@@ -63,6 +68,7 @@ export type Database = {
           owner_id?: string | null
           price?: number
           title?: string
+          transmission?: string | null
           updated_at?: string | null
           year?: number
         }

@@ -182,7 +182,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <span className="text-muted-foreground">Premium Automotive Experience</span>
             </div>
             <div className="text-center text-muted-foreground text-sm">
-              © 2024 Bebington Motors. All rights reserved.
+              © 2024 Bebington Motors. All rights reserved. | A Kibs Tech Development
             </div>
           </div>
         </div>

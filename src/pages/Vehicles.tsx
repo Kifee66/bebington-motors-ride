@@ -22,6 +22,8 @@ interface Car {
   title: string;
   description: string;
   is_available: boolean;
+  transmission: string;
+  engine_cc: number;
 }
 
 export const Vehicles: React.FC = () => {
@@ -310,7 +312,10 @@ export const Vehicles: React.FC = () => {
 
                   {/* Action Buttons */}
                   <div className="space-y-2">
-                    <Button className="w-full premium-button hover:shadow-glow">
+                    <Button 
+                      onClick={() => window.location.href = `/car/${car.id}`}
+                      className="w-full premium-button hover:shadow-glow"
+                    >
                       <Eye className="h-4 w-4 mr-2" />
                       View Details
                     </Button>
