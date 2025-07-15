@@ -14,156 +14,7 @@ export type Database = {
   }
   public: {
     Tables: {
-      car_images: {
-        Row: {
-          car_id: number
-          id: number
-          image_description: string | null
-          image_url: string
-          uploaded_at: string | null
-        }
-        Insert: {
-          car_id: number
-          id?: number
-          image_description?: string | null
-          image_url: string
-          uploaded_at?: string | null
-        }
-        Update: {
-          car_id?: number
-          id?: number
-          image_description?: string | null
-          image_url?: string
-          uploaded_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "car_images_car_id_fkey"
-            columns: ["car_id"]
-            isOneToOne: false
-            referencedRelation: "cars"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cars: {
-        Row: {
-          condition: string
-          created_at: string | null
-          description: string | null
-          id: number
-          image_url: string | null
-          is_available: boolean | null
-          location: string | null
-          make: string
-          mileage: number | null
-          model: string
-          owner_id: string | null
-          price: number
-          title: string
-          updated_at: string | null
-          year: number
-        }
-        Insert: {
-          condition: string
-          created_at?: string | null
-          description?: string | null
-          id?: number
-          image_url?: string | null
-          is_available?: boolean | null
-          location?: string | null
-          make: string
-          mileage?: number | null
-          model: string
-          owner_id?: string | null
-          price: number
-          title: string
-          updated_at?: string | null
-          year: number
-        }
-        Update: {
-          condition?: string
-          created_at?: string | null
-          description?: string | null
-          id?: number
-          image_url?: string | null
-          is_available?: boolean | null
-          location?: string | null
-          make?: string
-          mileage?: number | null
-          model?: string
-          owner_id?: string | null
-          price?: number
-          title?: string
-          updated_at?: string | null
-          year?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "cars_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      users: {
-        Row: {
-          created_at: string | null
-          email: string
-          full_name: string | null
-          id: string
-          phone: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          email: string
-          full_name?: string | null
-          id: string
-          phone?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          phone?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Views: {
       [_ in never]: never
@@ -171,8 +22,8 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }

@@ -16,10 +16,10 @@ export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md', showTex
   };
 
   const textSizeClasses = {
-    sm: 'text-sm',
-    md: 'text-lg',
-    lg: 'text-xl',
-    xl: 'text-2xl'
+    sm: 'text-lg',
+    md: 'text-2xl',
+    lg: 'text-4xl',
+    xl: 'text-6xl'
   };
 
   return (
