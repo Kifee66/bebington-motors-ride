@@ -30,7 +30,7 @@ export const Logo: React.FC<LogoProps> = ({ className = '', size = 'md', showTex
         className={`${sizeClasses[size]} w-auto`}
       />
       {showText && (
-        <h2 className={`${textSizeClasses[size]} font-bold text-primary mt-2 uppercase tracking-wide`}>
+        <h2 className={`${textSizeClasses[size]} font-bold text-accent mt-2 uppercase tracking-wide transition-smooth hover:text-accent-glow`}>
           BEBINGTON MOTORS
         </h2>
       )}
