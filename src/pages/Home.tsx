@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Logo } from '@/components/ui/logo';
 import { Car, Users, Shield, Star, ArrowRight, Eye, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import heroBackgroundImage from '@/assets/bebington-hero-bg.jpg';
 
 export const Home: React.FC = () => {
   const { user } = useAuth();
@@ -47,7 +48,14 @@ export const Home: React.FC = () => {
   return (
     <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative gradient-hero min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background image */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${heroBackgroundImage})` }}
+        ></div>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/40"></div>
         {/* Background patterns */}
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iNSIgY3k9IjUiIHI9IjUiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30"></div>
         
@@ -59,7 +67,7 @@ export const Home: React.FC = () => {
             </div>
 
             {/* Hero text */}
-            <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
               Premium 
               <span className="text-gradient block md:inline md:ml-4">
                 Automotive
@@ -67,7 +75,7 @@ export const Home: React.FC = () => {
               <span className="block">Experience</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-white/90 mb-12 max-w-3xl mx-auto leading-relaxed">
               Discover exceptional vehicles from trusted dealers and passionate enthusiasts. 
               Your journey to automotive excellence starts here.
             </p>
@@ -121,7 +129,7 @@ export const Home: React.FC = () => {
                   <div className="text-2xl md:text-3xl font-bold text-primary mb-2">
                     {stat.number}
                   </div>
-                  <div className="text-sm md:text-base text-muted-foreground">
+                  <div className="text-sm md:text-base text-white/80">
                     {stat.label}
                   </div>
                 </div>
