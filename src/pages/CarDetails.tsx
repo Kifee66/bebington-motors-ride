@@ -6,8 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ArrowLeft, Calendar, Gauge, MapPin, Phone, Settings, Car as CarIcon, Zap } from 'lucide-react';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useToast } from '@/hooks/use-toast';
 import { ContactModal } from '@/components/ContactModal';
+
+interface CarImage {
+  id: string;
+  image_url: string;
+  description: string | null;
+  display_order: number;
+}
 
 interface Car {
   id: number;
@@ -30,6 +38,7 @@ export const CarDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [car, setCar] = useState<Car | null>(null);
+  const [carImages, setCarImages] = useState<CarImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const { toast } = useToast();
@@ -50,6 +59,19 @@ export const CarDetails: React.FC = () => {
 
       if (error) throw error;
       setCar(data);
+
+      // Fetch car images
+      const { data: images, error: imagesError } = await supabase
+        .from('car_images')
+        .select('*')
+        .eq('car_id', parseInt(id!))
+        .order('display_order');
+
+      if (imagesError) {
+        console.error('Error fetching car images:', imagesError);
+      } else {
+        setCarImages(images || []);
+      }
     } catch (error) {
       console.error('Error fetching car details:', error);
       toast({
@@ -131,15 +153,44 @@ export const CarDetails: React.FC = () => {
         {/* Image Section */}
         <div className="space-y-4">
           <Card className="overflow-hidden">
-            <div className="relative h-96 lg:h-[500px]">
-              {car.image_url ? (
-                <img
-                  src={car.image_url}
-                  alt={car.title || `${car.make} ${car.model}`}
-                  className="w-full h-full object-cover"
-                />
+            <div className="relative">
+              {carImages.length > 0 ? (
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {carImages.map((image, index) => (
+                      <CarouselItem key={image.id}>
+                        <div className="relative h-96 lg:h-[500px]">
+                          <img
+                            src={image.image_url}
+                            alt={image.description || `${car.title || `${car.make} ${car.model}`} - Image ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                          {image.description && (
+                            <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white p-3">
+                              <p className="text-sm">{image.description}</p>
+                            </div>
+                          )}
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  {carImages.length > 1 && (
+                    <>
+                      <CarouselPrevious className="left-4" />
+                      <CarouselNext className="right-4" />
+                    </>
+                  )}
+                </Carousel>
+              ) : car.image_url ? (
+                <div className="relative h-96 lg:h-[500px]">
+                  <img
+                    src={car.image_url}
+                    alt={car.title || `${car.make} ${car.model}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center">
+                <div className="w-full h-96 lg:h-[500px] bg-muted flex items-center justify-center">
                   <CarIcon className="h-24 w-24 text-muted-foreground" />
                 </div>
               )}
@@ -185,7 +236,7 @@ export const CarDetails: React.FC = () => {
                       <Gauge className="h-4 w-4 text-primary" />
                       <div>
                         <p className="text-sm text-muted-foreground">Mileage</p>
-                        <p className="font-medium text-foreground">{formatMileage(car.mileage)} mi</p>
+                        <p className="font-medium text-foreground">{formatMileage(car.mileage)} Km</p>
                       </div>
                     </div>
                   )}
