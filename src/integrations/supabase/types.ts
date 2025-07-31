@@ -58,6 +58,10 @@ export type Database = {
           created_at: string | null
           description: string | null
           engine_cc: number | null
+          hire_purchase_available: boolean | null
+          hire_purchase_deposit: number | null
+          hire_purchase_duration_months: number | null
+          hire_purchase_monthly_payment: number | null
           id: number
           image_url: string | null
           is_available: boolean | null
@@ -77,6 +81,10 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           engine_cc?: number | null
+          hire_purchase_available?: boolean | null
+          hire_purchase_deposit?: number | null
+          hire_purchase_duration_months?: number | null
+          hire_purchase_monthly_payment?: number | null
           id?: number
           image_url?: string | null
           is_available?: boolean | null
@@ -96,6 +104,10 @@ export type Database = {
           created_at?: string | null
           description?: string | null
           engine_cc?: number | null
+          hire_purchase_available?: boolean | null
+          hire_purchase_deposit?: number | null
+          hire_purchase_duration_months?: number | null
+          hire_purchase_monthly_payment?: number | null
           id?: number
           image_url?: string | null
           is_available?: boolean | null

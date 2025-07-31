@@ -24,6 +24,10 @@ interface CarFormData {
   location: string;
   description: string;
   image_url: string;
+  hire_purchase_available: boolean;
+  hire_purchase_deposit: string;
+  hire_purchase_monthly_payment: string;
+  hire_purchase_duration_months: string;
 }
 
 interface CarImage {
@@ -63,6 +67,10 @@ export const AddCar: React.FC = () => {
     location: '',
     description: '',
     image_url: '',
+    hire_purchase_available: false,
+    hire_purchase_deposit: '',
+    hire_purchase_monthly_payment: '',
+    hire_purchase_duration_months: '',
   });
   
   const [loading, setLoading] = useState(false);
@@ -108,7 +116,7 @@ export const AddCar: React.FC = () => {
     }
   };
 
-  const handleInputChange = (field: keyof CarFormData, value: string) => {
+  const handleInputChange = (field: keyof CarFormData, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -250,6 +258,10 @@ export const AddCar: React.FC = () => {
           image_url: primaryImageUrl || null,
           owner_id: user.id,
           is_available: true,
+          hire_purchase_available: formData.hire_purchase_available,
+          hire_purchase_deposit: formData.hire_purchase_available && formData.hire_purchase_deposit ? parseFloat(formData.hire_purchase_deposit) : null,
+          hire_purchase_monthly_payment: formData.hire_purchase_available && formData.hire_purchase_monthly_payment ? parseFloat(formData.hire_purchase_monthly_payment) : null,
+          hire_purchase_duration_months: formData.hire_purchase_available && formData.hire_purchase_duration_months ? parseInt(formData.hire_purchase_duration_months) : null,
         };
         
         result = await supabase
@@ -271,6 +283,10 @@ export const AddCar: React.FC = () => {
           image_url: primaryImageUrl || null,
           owner_id: user.id,
           is_available: true,
+          hire_purchase_available: formData.hire_purchase_available,
+          hire_purchase_deposit: formData.hire_purchase_available && formData.hire_purchase_deposit ? parseFloat(formData.hire_purchase_deposit) : null,
+          hire_purchase_monthly_payment: formData.hire_purchase_available && formData.hire_purchase_monthly_payment ? parseFloat(formData.hire_purchase_monthly_payment) : null,
+          hire_purchase_duration_months: formData.hire_purchase_available && formData.hire_purchase_duration_months ? parseInt(formData.hire_purchase_duration_months) : null,
         };
         
         result = await supabase
@@ -315,6 +331,10 @@ export const AddCar: React.FC = () => {
         location: '',
         description: '',
         image_url: '',
+        hire_purchase_available: false,
+        hire_purchase_deposit: '',
+        hire_purchase_monthly_payment: '',
+        hire_purchase_duration_months: '',
       });
       setEditingCar(null);
       setUploadedImages([]);
@@ -347,6 +367,10 @@ export const AddCar: React.FC = () => {
       location: car.location || '',
       description: car.description || '',
       image_url: car.image_url || '',
+      hire_purchase_available: (car as any).hire_purchase_available || false,
+      hire_purchase_deposit: (car as any).hire_purchase_deposit?.toString() || '',
+      hire_purchase_monthly_payment: (car as any).hire_purchase_monthly_payment?.toString() || '',
+      hire_purchase_duration_months: (car as any).hire_purchase_duration_months?.toString() || '',
     });
   };
 
@@ -394,6 +418,10 @@ export const AddCar: React.FC = () => {
       location: '',
       description: '',
       image_url: '',
+      hire_purchase_available: false,
+      hire_purchase_deposit: '',
+      hire_purchase_monthly_payment: '',
+      hire_purchase_duration_months: '',
     });
   };
 
@@ -646,19 +674,87 @@ export const AddCar: React.FC = () => {
                      </div>
                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="description" className="text-foreground font-medium">
-                      Description
-                    </Label>
-                    <Textarea
-                      id="description"
-                      placeholder="Describe your vehicle's features, history, and unique qualities..."
-                      value={formData.description}
-                      onChange={(e) => handleInputChange('description', e.target.value)}
-                      className="luxury-input min-h-[120px]"
-                      rows={5}
-                    />
-                  </div>
+                   <div className="space-y-2">
+                     <Label htmlFor="description" className="text-foreground font-medium">
+                       Description
+                     </Label>
+                     <Textarea
+                       id="description"
+                       placeholder="Describe your vehicle's features, history, and unique qualities..."
+                       value={formData.description}
+                       onChange={(e) => handleInputChange('description', e.target.value)}
+                       className="luxury-input min-h-[120px]"
+                       rows={5}
+                     />
+                   </div>
+
+                   {/* Hire Purchase Section */}
+                   <div className="space-y-4 border border-border rounded-lg p-4">
+                     <div className="flex items-center space-x-2">
+                       <input
+                         type="checkbox"
+                         id="hire_purchase_available"
+                         checked={formData.hire_purchase_available}
+                         onChange={(e) => handleInputChange('hire_purchase_available', e.target.checked)}
+                         className="h-4 w-4 text-primary"
+                       />
+                       <Label htmlFor="hire_purchase_available" className="text-foreground font-medium">
+                         Hire Purchase Available
+                       </Label>
+                     </div>
+
+                     {formData.hire_purchase_available && (
+                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                         <div className="space-y-2">
+                           <Label htmlFor="hire_purchase_deposit" className="text-foreground font-medium">
+                             Deposit (KSH)
+                           </Label>
+                           <Input
+                             id="hire_purchase_deposit"
+                             type="number"
+                             placeholder="150000"
+                             value={formData.hire_purchase_deposit}
+                             onChange={(e) => handleInputChange('hire_purchase_deposit', e.target.value)}
+                             className="luxury-input"
+                             min="0"
+                             step="1"
+                           />
+                         </div>
+
+                         <div className="space-y-2">
+                           <Label htmlFor="hire_purchase_monthly_payment" className="text-foreground font-medium">
+                             Monthly Payment (KSH)
+                           </Label>
+                           <Input
+                             id="hire_purchase_monthly_payment"
+                             type="number"
+                             placeholder="25000"
+                             value={formData.hire_purchase_monthly_payment}
+                             onChange={(e) => handleInputChange('hire_purchase_monthly_payment', e.target.value)}
+                             className="luxury-input"
+                             min="0"
+                             step="1"
+                           />
+                         </div>
+
+                         <div className="space-y-2">
+                           <Label htmlFor="hire_purchase_duration_months" className="text-foreground font-medium">
+                             Duration (Months)
+                           </Label>
+                           <Input
+                             id="hire_purchase_duration_months"
+                             type="number"
+                             placeholder="24"
+                             value={formData.hire_purchase_duration_months}
+                             onChange={(e) => handleInputChange('hire_purchase_duration_months', e.target.value)}
+                             className="luxury-input"
+                             min="1"
+                             max="120"
+                           />
+                         </div>
+                       </div>
+                     )}
+                   </div>
 
                    <div className="flex space-x-4">
                      <Button

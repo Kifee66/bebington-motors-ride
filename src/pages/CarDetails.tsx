@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Calendar, Gauge, MapPin, Phone, Settings, Car as CarIcon, Zap } from 'lucide-react';
+import { ArrowLeft, Calendar, Gauge, MapPin, Phone, Settings, Car as CarIcon, Zap, CreditCard } from 'lucide-react';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useToast } from '@/hooks/use-toast';
 import { ContactModal } from '@/components/ContactModal';
@@ -32,6 +32,10 @@ interface Car {
   is_available: boolean;
   transmission: string;
   engine_cc: number;
+  hire_purchase_available?: boolean;
+  hire_purchase_deposit?: number;
+  hire_purchase_monthly_payment?: number;
+  hire_purchase_duration_months?: number;
 }
 
 export const CarDetails: React.FC = () => {
@@ -279,6 +283,55 @@ export const CarDetails: React.FC = () => {
                   <p className="text-muted-foreground leading-relaxed">{car.description}</p>
                 </div>
               )}
+
+              <Separator />
+
+              {/* Hire Purchase Section */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-4">Financing Options</h3>
+                {car.hire_purchase_available ? (
+                  <Card className="border-primary/20 bg-primary/5">
+                    <CardContent className="p-4">
+                      <div className="flex items-center space-x-2 mb-3">
+                        <CreditCard className="h-5 w-5 text-primary" />
+                        <h4 className="font-semibold text-foreground">Hire Purchase Option</h4>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {car.hire_purchase_deposit && (
+                          <div>
+                            <p className="text-sm text-muted-foreground">Deposit</p>
+                            <p className="font-medium text-foreground">{formatPrice(car.hire_purchase_deposit)}</p>
+                          </div>
+                        )}
+                        {car.hire_purchase_monthly_payment && (
+                          <div>
+                            <p className="text-sm text-muted-foreground">Monthly Payment</p>
+                            <p className="font-medium text-foreground">{formatPrice(car.hire_purchase_monthly_payment)}</p>
+                          </div>
+                        )}
+                        {car.hire_purchase_duration_months && (
+                          <div>
+                            <p className="text-sm text-muted-foreground">Duration</p>
+                            <p className="font-medium text-foreground">{car.hire_purchase_duration_months} months</p>
+                          </div>
+                        )}
+                      </div>
+                      <Button 
+                        onClick={() => setContactModalOpen(true)}
+                        className="w-full mt-4 bg-primary text-primary-foreground hover:bg-primary/90"
+                        disabled={!car.is_available}
+                      >
+                        <CreditCard className="h-4 w-4 mr-2" />
+                        Apply for Hire Purchase
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="text-center py-4 border border-border rounded-lg bg-muted/50">
+                    <p className="text-muted-foreground">Hire Purchase Not Available</p>
+                  </div>
+                )}
+              </div>
 
               <Separator />
 
