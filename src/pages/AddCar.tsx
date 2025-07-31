@@ -26,6 +26,11 @@ interface CarFormData {
   image_url: string;
 }
 
+interface CarImage {
+  file: File;
+  description: string;
+}
+
 interface Car {
   id: number;
   title: string;
@@ -63,7 +68,7 @@ export const AddCar: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [userCars, setUserCars] = useState<Car[]>([]);
   const [editingCar, setEditingCar] = useState<Car | null>(null);
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [uploadedImages, setUploadedImages] = useState<CarImage[]>([]);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -130,28 +135,35 @@ export const AddCar: React.FC = () => {
       return true;
     });
 
-    setUploadedImages(prev => [...prev, ...newImages].slice(0, 5)); // Max 5 images
+    const carImages: CarImage[] = newImages.map(file => ({ file, description: '' }));
+    setUploadedImages(prev => [...prev, ...carImages].slice(0, 10)); // Max 10 images
+  };
+
+  const updateImageDescription = (index: number, description: string) => {
+    setUploadedImages(prev => prev.map((img, i) => 
+      i === index ? { ...img, description } : img
+    ));
   };
 
   const removeUploadedImage = (index: number) => {
     setUploadedImages(prev => prev.filter((_, i) => i !== index));
   };
 
-  const uploadImagesToSupabase = async (): Promise<string[]> => {
+  const uploadImagesToSupabase = async (carId?: number): Promise<{ url: string; description: string }[]> => {
     if (!uploadedImages.length) return [];
     
     setUploading(true);
-    const uploadedUrls: string[] = [];
+    const uploadedData: { url: string; description: string }[] = [];
     
     try {
-      for (const file of uploadedImages) {
-        const fileExt = file.name.split('.').pop();
+      for (const carImage of uploadedImages) {
+        const fileExt = carImage.file.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
         const filePath = `${user?.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('car-images')
-          .upload(filePath, file);
+          .upload(filePath, carImage.file);
 
         if (uploadError) throw uploadError;
 
@@ -159,7 +171,7 @@ export const AddCar: React.FC = () => {
           .from('car-images')
           .getPublicUrl(filePath);
 
-        uploadedUrls.push(publicUrl);
+        uploadedData.push({ url: publicUrl, description: carImage.description });
       }
     } catch (error) {
       console.error('Error uploading images:', error);
@@ -172,7 +184,7 @@ export const AddCar: React.FC = () => {
       setUploading(false);
     }
     
-    return uploadedUrls;
+    return uploadedData;
   };
 
   const validateForm = (): boolean => {
@@ -219,8 +231,8 @@ export const AddCar: React.FC = () => {
 
     try {
       // Upload images first
-      const imageUrls = await uploadImagesToSupabase();
-      const primaryImageUrl = imageUrls.length > 0 ? imageUrls[0] : formData.image_url;
+      const imageData = await uploadImagesToSupabase();
+      const primaryImageUrl = imageData.length > 0 ? imageData[0].url : formData.image_url;
       
       let result;
       if (editingCar) {
@@ -263,11 +275,28 @@ export const AddCar: React.FC = () => {
         
         result = await supabase
           .from('cars')
-          .insert(insertData);
+          .insert(insertData)
+          .select('id')
+          .single();
       }
 
       console.log('Car save result:', result); // Debug log
       if (result.error) throw result.error;
+
+      // Save additional images with descriptions
+      if (imageData.length > 1 && result.data?.id) {
+        const carId = editingCar?.id || result.data.id;
+        for (let i = 0; i < imageData.length; i++) {
+          await supabase
+            .from('car_images')
+            .insert({
+              car_id: carId,
+              image_url: imageData[i].url,
+              description: imageData[i].description || null,
+              display_order: i
+            });
+        }
+      }
 
       toast({
         title: "Success!",
@@ -505,20 +534,20 @@ export const AddCar: React.FC = () => {
                        />
                      </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="mileage" className="text-foreground font-medium">
-                        Mileage
-                      </Label>
-                      <Input
-                        id="mileage"
-                        type="number"
-                        placeholder="25000"
-                        value={formData.mileage}
-                        onChange={(e) => handleInputChange('mileage', e.target.value)}
-                        className="luxury-input"
-                        min="0"
-                      />
-                    </div>
+                     <div className="space-y-2">
+                       <Label htmlFor="mileage" className="text-foreground font-medium">
+                         Mileage (Km)
+                       </Label>
+                       <Input
+                         id="mileage"
+                         type="number"
+                         placeholder="25000"
+                         value={formData.mileage}
+                         onChange={(e) => handleInputChange('mileage', e.target.value)}
+                         className="luxury-input"
+                         min="0"
+                       />
+                     </div>
                   </div>
 
                   <div className="space-y-2">
@@ -555,33 +584,46 @@ export const AddCar: React.FC = () => {
                            <p className="text-sm text-muted-foreground">
                              Click to upload images or drag and drop
                            </p>
-                           <p className="text-xs text-muted-foreground mt-1">
-                             PNG, JPG, JPEG up to 5MB each (max 5 images)
-                           </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              PNG, JPG, JPEG up to 5MB each (max 10 images)
+                            </p>
                          </label>
                        </div>
 
-                       {/* Image Preview */}
-                       {uploadedImages.length > 0 && (
-                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                           {uploadedImages.map((file, index) => (
-                             <div key={index} className="relative group">
-                               <img
-                                 src={URL.createObjectURL(file)}
-                                 alt={`Preview ${index + 1}`}
-                                 className="w-full h-24 object-cover rounded-lg border border-border"
-                               />
-                               <button
-                                 type="button"
-                                 onClick={() => removeUploadedImage(index)}
-                                 className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                               >
-                                 <X className="h-3 w-3" />
-                               </button>
-                             </div>
-                           ))}
-                         </div>
-                       )}
+                        {/* Image Preview */}
+                        {uploadedImages.length > 0 && (
+                          <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {uploadedImages.map((carImage, index) => (
+                                <div key={index} className="relative group border border-border rounded-lg p-3 space-y-2">
+                                  <div className="relative">
+                                    <img
+                                      src={URL.createObjectURL(carImage.file)}
+                                      alt={`Preview ${index + 1}`}
+                                      className="w-full h-24 object-cover rounded-lg"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => removeUploadedImage(index)}
+                                      className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <Label className="text-xs text-foreground">Image Description</Label>
+                                    <Input
+                                      placeholder="Describe this image..."
+                                      value={carImage.description}
+                                      onChange={(e) => updateImageDescription(index, e.target.value)}
+                                      className="text-xs h-8"
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
                        {/* Or URL Input */}
                        <div className="relative">
